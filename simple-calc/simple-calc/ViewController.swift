@@ -14,6 +14,8 @@ class ViewController: UIViewController {
     var isInput = false
     var operandStack = Array<Double>()
     var operation = ""
+    var history : [String] = []
+    var added : BooleanType = false
     
     @IBAction func enternumber(sender: UIButton) {
         let digit = sender.currentTitle!
@@ -35,6 +37,17 @@ class ViewController: UIViewController {
         
         print("operandStack = \(operandStack)")
         
+        if operandStack.count > 1 {
+            var singleOperation = "\(operandStack[0])"
+            for index in 1...operandStack.count - 1 {
+                singleOperation += " \(operation) \(operandStack[index])"
+            }
+            history.append(singleOperation)
+            added = true
+        } else {
+            added = false
+        }
+        
         switch operation {
             case "➕": simpleOp(add)
             case "➖": simpleOp(subtract)
@@ -45,6 +58,12 @@ class ViewController: UIViewController {
             case "avg": avg()
             default: break
         }
+        
+        if added {
+            let line = history.removeLast() + " = \(displayValue)"
+            history.append(line)
+        }
+        
     }
     
     var displayValue: Double {
@@ -120,6 +139,8 @@ class ViewController: UIViewController {
             let input2 = operandStack.removeLast()
             let input1 = operandStack.removeLast()
             displayValue = op(input1, input2)
+            let line = history.removeLast() + " = \(displayValue)"
+            history.append(line)
             
             enter()
         } else if operandStack.count == 1 {
@@ -147,6 +168,12 @@ class ViewController: UIViewController {
     
     let mod = {(input1 : Double, input2 : Double) -> Double in
         return Double(Int(input1) % Int(input2))
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        print("\(history)")
+        let DestViewController: History = segue.destinationViewController as! History
+        DestViewController.history2 = history
     }
 
 }
